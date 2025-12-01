@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Secuencia CRT</title>
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<style>
+  body {
+    background: black;
+    color: white;
+    font-family: 'VT323', monospace;
+    font-size: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+  }
+
+  #container {
+    width: 80%;
+    max-width: 800px;
+    text-shadow: 0 0 8px rgba(255,255,255,0.4);
+    animation: flicker 0.2s infinite;
+  }
+
+  @keyframes flicker {
+    0% { opacity: 1; }
+    50% { opacity: 0.98; }
+    100% { opacity: 1; }
+  }
+
+  .scanlines {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.03) 0px,
+      rgba(255, 255, 255, 0.03) 2px,
+      transparent 2px,
+      transparent 4px
+    );
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  button {
+    font-family: 'VT323', monospace;
+    background: black;
+    color: white;
+    border: 1px solid white;
+    padding: 10px 20px;
+    margin: 10px;
+    font-size: 1.5rem;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background: white;
+    color: black;
+  }
+</style>
+</head>
+<body>
+<div id="container"></div>
+<div class="scanlines"></div>
+<audio id="musica" src="musica.wav"></audio>
+
+<script>
+const container = document.getElementById("container");
+const musica = document.getElementById("musica");
+
+// Pregunta inicial
+function mostrarPregunta() {
+  container.innerHTML = `¿Sabes por qué estás aquí?<br><br>
+    <button onclick="iniciarSecuencia()">Sí</button>
+    <button onclick="redirigirNo()">No</button>`;
+}
+
+function redirigirNo() {
+  window.location.href = "about:blank";
+}
+
+// Frases de la secuencia
+const frases = [
+  "Realmente pasó tiempo",
+  "¿Cuanto más tengo que esperar?",
+  "No...",
+  "¿Cuanto más tienes que esperar?",
+  "Realmente está cerca",
+  "Acercandose rapidamente a ti",
+  "...",
+  "Puedes sentirlo, ¿Verdad?",
+  "Sé que puedes sentirlo",
+  "Chronomania",
+  "Se que puedes sentir como llega",
+  "26 de enero de 2026" 
+];
+
+// Mostrar texto letra por letra
+async function escribirTexto(frase) {
+  container.textContent = "";
+
+  for (let i = 0; i < frase.length; i++) {
+    container.textContent += frase[i];
+
+    // Pausa base entre letras
+    await new Promise(r => setTimeout(r, 50));
+
+    // Pausa adicional si es una palabra completa (espacio)
+    if (frase[i] === " ") {
+      await new Promise(r => setTimeout(r, 500));
+    }
+
+    // Pausa ligera por comas
+    if (frase[i] === ",") {
+      await new Promise(r => setTimeout(r, 100));
+    }
+  }
+
+  // Pausa al terminar la frase
+  await new Promise(r => setTimeout(r, 2000));
+
+  // Desvanecer antes de la siguiente frase
+  container.style.opacity = 1;
+  for (let o = 1; o >= 0; o -= 0.05) {
+    container.style.opacity = o;
+    await new Promise(r => setTimeout(r, 40));
+  }
+  container.style.opacity = 1;
+}
+
+// Secuencia completa
+async function iniciarSecuencia() {
+  musica.play();
+
+  for (let i = 0; i < frases.length; i++) {
+    await escribirTexto(frases[i]);
+
+    // Pausa extra antes de "Chronomania"
+    if (frases[i] === "Sé que puedes sentirlo") {
+      await new Promise(r => setTimeout(r, 1000));
+    }
+  }
+
+  // Redirección final
+  window.location.href = "https://emirdrio.itch.io/chronomania";
+}
+
+mostrarPregunta();
+</script>
+</body>
+</html>
